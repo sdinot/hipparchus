@@ -16,12 +16,12 @@ jobs:
       run: mvn -B -f pom.xml install checkstyle:checkstyle
     - name: SonarQube scan
       run: |
-        if [ $SONARQUBE_PROJECT_KEY == 'Hipparchus-Math/hipparchus' ] ; then export SONARQUBE_PROJECT_NAME='Hipparchus' ; else export SONARQUBE_PROJECT_NAME="Hipparchus ($SONARQUBE_PROJECT_KEY)" ; fi
-        fi
-        mvn -B -f pom.xml sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.branch.name=${GITHUB_REF##*/} -Dsonar.projectKey=$SONARQUBE_PROJECT_KEY -Dsonar.projectName=$SONARQUBE_PROJECT_NAME
+        if [ $PROJECT_KEY == 'Hipparchus-Math/hipparchus' ] ; then export KEY_OPTION='' ; else export PROJECT_NAME="$PROJECT_NAME ($PROJECT_KEY)" KEY_OPTION="-Dsonar.projectKey=$PROJECT_KEY" ; fi
+        mvn -B -f pom.xml sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.branch.name=${GITHUB_REF##*/} $KEY_OPTION -Dsonar.projectName=$PROJECT_NAME
       env:
         SONARQUBE_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        SONARQUBE_PROJECT_KEY: ${{ github.repository }}
+        PROJECT_KEY: ${{ github.repository }}
+        PROJECT_NAME: 'Hipparchus'
     - name: Deployment
       if: ( github.repository == 'Hipparchus-Math/hipparchus' ) && ( ( github.ref == 'refs/heads/master' ) || ( github.ref == 'refs/heads/develop' ) )
       run: mvn -B -f pom.xml -s .CI/maven-settings.xml deploy -Pci-deploy -DskipTests=true
